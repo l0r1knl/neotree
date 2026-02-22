@@ -1,0 +1,4 @@
+.: README.md
+.venv/bin: activate
+src: app.py
+src/__pycache__: app.cpython-313.pyc

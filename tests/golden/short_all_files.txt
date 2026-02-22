@@ -1,0 +1,5 @@
+.: .env, README.md
+docs: guide.md
+src/api: auth.py, user.py
+src/models: user.py
+tests: test_user.py

@@ -1,0 +1,5 @@
+. (files: 1): README.md
+docs (files: 1): guide.md
+src/api (files: 2): auth.py, user.py
+src/models (files: 1): user.py
+tests (files: 1): test_user.py

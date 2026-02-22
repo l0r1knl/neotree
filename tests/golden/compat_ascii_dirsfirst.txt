@@ -1,0 +1,14 @@
+.
+|-- docs/
+|   \-- guide.md
+|-- src/
+|   |-- api/
+|   |   |-- auth.py
+|   |   \-- user.py
+|   \-- models/
+|       \-- user.py
+|-- tests/
+|   \-- test_user.py
+\-- README.md
+
+5 directories, 6 files
