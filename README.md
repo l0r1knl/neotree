@@ -41,6 +41,8 @@ For contribution and naming rules, see `CONTRIBUTING.md`.
 
 - Markdown wrapper for sharing (`--md`)
 - Write output to a file (`-o`)
+- Export directory structure as CSV with fixed schema (`--csv`)
+- Combine with `-F` to list files only (no directory rows)
 
 ---
 
@@ -156,10 +158,60 @@ If `--budget` is specified, a `- budget: N` line is included after `mode`.
 
 ---
 
+## CSV output
+
+`--csv` exports the directory structure as a flat CSV table.
+
+```bash
+ntree --csv
+ntree --csv -L 2 -I tests
+ntree --csv -F          # files only, no directory rows
+ntree --csv -o out.csv  # write to file
+```
+
+Example output:
+
+```text
+parent_dir,filename,fullpath,depth
+myproject,README.md,C:\path\to\myproject\README.md,0
+myproject,src,C:\path\to\myproject\src,0
+src,api,C:\path\to\myproject\src\api,1
+api,auth.py,C:\path\to\myproject\src\api\auth.py,2
+api,user.py,C:\path\to\myproject\src\api\user.py,2
+```
+
+Column definitions:
+
+| Column       | Content                             | Notes                                          |
+| ------------ | ----------------------------------- | ---------------------------------------------- |
+| `parent_dir` | Immediate parent directory name     | Root-level entries use the root directory name |
+| `filename`   | File or directory name              |                                                |
+| `fullpath`   | Absolute path (OS-native separator) | `\` on Windows, `/` on Unix                    |
+| `depth`      | Depth from root (0-based)           |                                                |
+
+With `-F / --files-only`, directory rows are omitted:
+
+```bash
+ntree --csv -F
+```
+
+```text
+parent_dir,filename,fullpath,depth
+myproject,README.md,C:\path\to\myproject\README.md,0
+api,auth.py,C:\path\to\myproject\src\api\auth.py,2
+api,user.py,C:\path\to\myproject\src\api\user.py,2
+```
+
+`--csv` cannot be combined with `--short` or `--md`.
+
+---
+
 ## Option notes
 
 - `--budget` and `--count` only work with `--short`
-- `--short` cannot be combined with `-d`
+- `--short` cannot be combined with `-d` or `-F`
+- `--csv` cannot be combined with `--short` or `--md`
+- `-d` and `-F` cannot be combined
 - `-L` accepts integers ≥ 1 only
 - `--preset` always includes `generic` exclusions (`.git`, `.DS_Store`, `Thumbs.db`) regardless of the named preset
 - `--preset` and `-I` can be combined; both sets of exclusions apply together
