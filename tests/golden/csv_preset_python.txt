@@ -1,0 +1,7 @@
+parent_dir,filename,fullpath,depth
+test_csv_golden_matrix_noisy_t0,README.md,<ROOT>\README.md,0
+test_csv_golden_matrix_noisy_t0,node_modules,<ROOT>\node_modules,0
+test_csv_golden_matrix_noisy_t0,src,<ROOT>\src,0
+node_modules,pkg,<ROOT>\node_modules\pkg,1
+pkg,index.js,<ROOT>\node_modules\pkg\index.js,2
+src,app.py,<ROOT>\src\app.py,1

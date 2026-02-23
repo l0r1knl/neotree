@@ -38,11 +38,14 @@ class ScanOptions:
         max_depth: Maximum parent depth to scan. ``None`` means unlimited.
         dirs_only: Whether to include only directories.
         all_files: Whether to include hidden entries.
+        files_only: Whether to include only files (directories are traversed
+            but not added to results). Mutually exclusive with ``dirs_only``.
     """
 
     max_depth: int | None = None
     dirs_only: bool = False
     all_files: bool = False
+    files_only: bool = False
 
 
 class EntryFilter(Protocol):
@@ -124,6 +127,11 @@ def scan(
                 continue
 
             if scan_options.dirs_only and not is_dir:
+                continue
+
+            # files_only: traverse into dirs but exclude them from results
+            if scan_options.files_only and is_dir:
+                child_dirs.append((Path(dir_entry.path), depth + 1))
                 continue
 
             entry = Entry(

@@ -1,0 +1,12 @@
+parent_dir,filename,fullpath,depth
+test_csv_golden_matrix_sample_0,README.md,<ROOT>\README.md,0
+test_csv_golden_matrix_sample_0,docs,<ROOT>\docs,0
+test_csv_golden_matrix_sample_0,src,<ROOT>\src,0
+test_csv_golden_matrix_sample_0,tests,<ROOT>\tests,0
+docs,guide.md,<ROOT>\docs\guide.md,1
+src,api,<ROOT>\src\api,1
+src,models,<ROOT>\src\models,1
+api,auth.py,<ROOT>\src\api\auth.py,2
+api,user.py,<ROOT>\src\api\user.py,2
+models,user.py,<ROOT>\src\models\user.py,2
+tests,test_user.py,<ROOT>\tests\test_user.py,1

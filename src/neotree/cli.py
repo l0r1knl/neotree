@@ -124,6 +124,19 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Apply exclusion preset (python, node, rust, generic)",
     )
+    parser.add_argument(
+        "--csv",
+        action="store_true",
+        dest="csv_mode",
+        help="Output as CSV (parent_dir, filename, fullpath, depth)",
+    )
+    parser.add_argument(
+        "-F",
+        "--files-only",
+        action="store_true",
+        dest="files_only",
+        help="Exclude directory entries; show files only (applies to all modes)",
+    )
     return parser
 
 
@@ -227,6 +240,14 @@ def _validate_option_combinations(args: argparse.Namespace) -> None:
         raise NtreeError("--count requires --short")
     if args.budget is not None and args.budget < 1:
         raise NtreeError("--budget must be a positive integer")
+    if args.csv_mode and args.short_mode:
+        raise NtreeError("--csv is incompatible with --short")
+    if args.csv_mode and args.md_mode:
+        raise NtreeError("--csv is incompatible with --md")
+    if args.files_only and args.dirs_only:
+        raise NtreeError("--files-only (-F) is incompatible with --dirs-only (-d)")
+    if args.files_only and args.short_mode:
+        raise NtreeError("--files-only (-F) is incompatible with --short")
 
 
 def _format_output(args: argparse.Namespace, root: Path, entries: list[Entry]) -> str:
@@ -240,6 +261,15 @@ def _format_output(args: argparse.Namespace, root: Path, entries: list[Entry]) -
     Returns:
         str: Rendered tree output.
     """
+    if args.csv_mode:
+        from neotree.formatter.csv_ import CsvOptions, format_csv
+
+        csv_opts = CsvOptions(
+            root_path=root,
+            files_only=args.files_only,
+        )
+        return format_csv(entries, csv_opts)
+
     if args.short_mode:
         from neotree.formatter.short import ShortOptions, format_short
 
@@ -283,6 +313,7 @@ def _run_with_args(args: argparse.Namespace) -> str:
         max_depth=scan_max_depth,
         dirs_only=args.dirs_only,
         all_files=args.all_files,
+        files_only=args.files_only if not args.csv_mode else False,
     )
 
     entries = scan(root, scan_opts, entry_filter)
