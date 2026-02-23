@@ -24,8 +24,9 @@ from __future__ import annotations
 import csv
 import io
 from dataclasses import dataclass, field
+from itertools import groupby
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Literal
 
 from neotree.scanner import Entry
 
@@ -108,6 +109,7 @@ class CsvOptions:
     root_path: Path | None = None
     files_only: bool = False
     columns: list[CsvColumn] = field(default_factory=lambda: list(DEFAULT_COLUMNS))
+    order: Literal["asc", "desc"] = "asc"
 
 
 # ---------------------------------------------------------------------------
@@ -144,12 +146,22 @@ def format_csv(
     root = opts.root_path or (entries[0].parent_path if entries else Path("."))
     columns = opts.columns
 
+    # For desc order, re-sort within each parent group.
+    # Same-parent entries are always contiguous in DFS scan output.
+    effective_entries: list[Entry]
+    if opts.order == "desc":
+        effective_entries = []
+        for _, grp in groupby(entries, key=lambda e: e.parent_path):
+            effective_entries.extend(sorted(grp, key=lambda e: e.name, reverse=True))
+    else:
+        effective_entries = entries
+
     buf = io.StringIO()
     writer = csv.writer(buf, lineterminator="\n")
 
     writer.writerow([col.name for col in columns])
 
-    for entry in entries:
+    for entry in effective_entries:
         if opts.files_only and entry.is_dir:
             continue
         writer.writerow([col.extract(entry, root) for col in columns])

@@ -51,6 +51,7 @@ class CompatOptions:
     full_path: bool = False
     no_report: bool = False
     root_path: Path | None = None
+    order: Literal["asc", "desc"] = "asc"
 
 
 def _group_by_parent(entries: list[Entry]) -> dict[Path, list[Entry]]:
@@ -68,19 +69,30 @@ def _group_by_parent(entries: list[Entry]) -> dict[Path, list[Entry]]:
     return groups
 
 
-def _sort_children(children: list[Entry], dirs_first: bool) -> list[Entry]:
+def _sort_children(
+    children: list[Entry], dirs_first: bool, reverse: bool = False
+) -> list[Entry]:
     """Sort children according to current compat options.
 
     Args:
         children: Child entries under one parent.
         dirs_first: Whether to sort directories before files.
+        reverse: Whether to sort in descending order.
 
     Returns:
         list[Entry]: Sorted child entries.
     """
     if dirs_first:
-        return sorted(children, key=lambda e: (not e.is_dir, e.name))
-    return sorted(children, key=lambda e: e.name)
+        dirs = sorted(
+            [e for e in children if e.is_dir], key=lambda e: e.name, reverse=reverse
+        )
+        files = sorted(
+            [e for e in children if not e.is_dir],
+            key=lambda e: e.name,
+            reverse=reverse,
+        )
+        return dirs + files
+    return sorted(children, key=lambda e: e.name, reverse=reverse)
 
 
 def _report_line(dir_count: int, file_count: int) -> str:
@@ -132,10 +144,14 @@ def format_compat(
     dir_count = 0
     file_count = 0
 
+    reverse = opts.order == "desc"
+
     # Iterative DFS using an explicit stack.
     # Stack items: (entry, prefix, is_last_sibling)
     # Push children in reverse order so that the first child is popped first.
-    root_children = _sort_children(groups.get(root_parent, []), opts.dirs_first)
+    root_children = _sort_children(
+        groups.get(root_parent, []), opts.dirs_first, reverse
+    )
     stack: list[tuple[Entry, str, bool]] = []
     for i in range(len(root_children) - 1, -1, -1):
         stack.append((root_children[i], "", i == len(root_children) - 1))
@@ -163,7 +179,9 @@ def format_compat(
 
         if child.is_dir:
             next_prefix = prefix + (glyphs.space if is_last else glyphs.vertical)
-            grandchildren = _sort_children(groups.get(child.path, []), opts.dirs_first)
+            grandchildren = _sort_children(
+                groups.get(child.path, []), opts.dirs_first, reverse
+            )
             for j in range(len(grandchildren) - 1, -1, -1):
                 stack.append(
                     (grandchildren[j], next_prefix, j == len(grandchildren) - 1)

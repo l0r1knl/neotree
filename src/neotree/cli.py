@@ -137,6 +137,12 @@ def build_parser() -> argparse.ArgumentParser:
         dest="files_only",
         help="Exclude directory entries; show files only (applies to all modes)",
     )
+    parser.add_argument(
+        "--order",
+        choices=["asc", "desc"],
+        default="asc",
+        help="Sort direction: asc (default) or desc",
+    )
     return parser
 
 
@@ -267,6 +273,7 @@ def _format_output(args: argparse.Namespace, root: Path, entries: list[Entry]) -
         csv_opts = CsvOptions(
             root_path=root,
             files_only=args.files_only,
+            order=args.order,
         )
         return format_csv(entries, csv_opts)
 
@@ -277,6 +284,7 @@ def _format_output(args: argparse.Namespace, root: Path, entries: list[Entry]) -
             budget=args.budget,
             count=args.count,
             root_path=root,
+            order=args.order,
         )
         return format_short(entries, short_opts)
 
@@ -286,6 +294,7 @@ def _format_output(args: argparse.Namespace, root: Path, entries: list[Entry]) -
         full_path=args.full_path,
         no_report=args.no_report,
         root_path=root if args.full_path else None,
+        order=args.order,
     )
     return format_compat(entries, compat_opts)
 

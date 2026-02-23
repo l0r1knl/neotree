@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 from neotree.scanner import Entry
 
@@ -22,6 +23,7 @@ class ShortOptions:
     budget: int | None = None
     count: bool = False
     root_path: Path | None = None
+    order: Literal["asc", "desc"] = "asc"
 
 
 def _build_relative_dir_key(entry_parent: Path, root: Path) -> str:
@@ -199,6 +201,10 @@ def format_short(
         return ""
 
     groups = _group_entries_by_parent(entries, root)
+
+    if opts.order == "desc":
+        for files in groups.values():
+            files.sort(key=lambda e: e.name, reverse=True)
 
     if opts.budget is not None:
         lines = _aggregate_deep_groups(groups, opts.budget, opts.count)
