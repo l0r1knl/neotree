@@ -1,7 +1,5 @@
 """Tests for --order option (name sort direction: asc / desc)."""
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import pytest
@@ -12,12 +10,9 @@ from neotree.formatter.csv_ import CsvOptions, format_csv
 from neotree.formatter.short import ShortOptions, format_short
 from neotree.scanner import Entry
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 
 def _file(name: str, parent: Path, depth: int = 0) -> Entry:
+    """Return a file Entry under the given parent."""
     return Entry(
         path=parent / name,
         name=name,
@@ -28,6 +23,7 @@ def _file(name: str, parent: Path, depth: int = 0) -> Entry:
 
 
 def _dir(name: str, parent: Path, depth: int = 0) -> Entry:
+    """Return a directory Entry under the given parent."""
     return Entry(
         path=parent / name,
         name=name,
@@ -98,11 +94,6 @@ class TestCompatOrder:
         assert _names_from_compat(result) == ["a_dir", "b_dir", "a.txt", "z.txt"]
 
 
-# ---------------------------------------------------------------------------
-# ShortOptions.order
-# ---------------------------------------------------------------------------
-
-
 class TestShortOrder:
     def test_default_asc_preserved(self) -> None:
         """Files in asc scan order remain asc (no reorder for default)."""
@@ -115,7 +106,7 @@ class TestShortOrder:
         result = format_short(entries, ShortOptions(root_path=ROOT, order="desc"))
         assert "z.txt, m.txt, a.txt" in result
 
-    def test_desc_multiple_groups(self, tmp_path: Path) -> None:
+    def test_desc_multiple_groups(self) -> None:
         """Each group is independently reversed."""
         sub = ROOT / "sub"
         entries = [
@@ -130,11 +121,6 @@ class TestShortOrder:
         sub_line = next(line for line in lines if "sub" in line)
         assert root_line.endswith("z.txt, a.txt")
         assert sub_line.endswith("y.txt, b.txt")
-
-
-# ---------------------------------------------------------------------------
-# CsvOptions.order
-# ---------------------------------------------------------------------------
 
 
 def _csv_filenames(result: str) -> list[str]:
@@ -179,11 +165,6 @@ class TestCsvOrder:
         assert _csv_filenames(result) == ["z.txt", "a.txt"]
 
 
-# ---------------------------------------------------------------------------
-# CLI integration
-# ---------------------------------------------------------------------------
-
-
 class TestCLIOrder:
     def test_order_desc_compat(self, tmp_path: Path) -> None:
         (tmp_path / "c.txt").write_text("c")
@@ -218,13 +199,10 @@ class TestCLIOrder:
     def test_order_desc_with_dirsfirst(self, tmp_path: Path) -> None:
         (tmp_path / "z.txt").write_text("z")
         (tmp_path / "a.txt").write_text("a")
-        sub = tmp_path / "sub"
-        sub.mkdir()
+        (tmp_path / "sub").mkdir()
         result = run_ntree([str(tmp_path), "--dirsfirst", "--order", "desc"])
         # Extract raw names (with trailing "/" for dirs) to distinguish dirs vs files
         raw_names = [
-            line.split("\u2500\u2500 ")[1]
-            for line in result.splitlines()
-            if "\u2500\u2500 " in line
+            line.split("── ")[1] for line in result.splitlines() if "── " in line
         ]
         assert raw_names == ["sub/", "z.txt", "a.txt"]

@@ -1,7 +1,5 @@
 """Tests for CSV formatter and files-only scan option."""
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import pytest
@@ -10,10 +8,6 @@ from neotree import NtreeError
 from neotree.cli import run_ntree
 from neotree.formatter.csv_ import CsvOptions, format_csv
 from neotree.scanner import ScanOptions, scan
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 
 def _build_csv_tree(tmp_path: Path) -> Path:
@@ -45,21 +39,11 @@ def _scan_and_format(root: Path, opts: CsvOptions | None = None) -> str:
     return format_csv(entries, opts or CsvOptions(root_path=root))
 
 
-# ---------------------------------------------------------------------------
-# CsvOptions defaults
-# ---------------------------------------------------------------------------
-
-
 class TestCsvOptions:
     def test_default_options_are_set(self) -> None:
         opts = CsvOptions()
         assert opts.files_only is False
         assert opts.root_path is None
-
-
-# ---------------------------------------------------------------------------
-# format_csv: schema
-# ---------------------------------------------------------------------------
 
 
 class TestFormatCsvSchema:
@@ -87,11 +71,6 @@ class TestFormatCsvSchema:
     def test_empty_entries_returns_header_only(self, tmp_path: Path) -> None:
         output = format_csv([], CsvOptions(root_path=tmp_path))
         assert output == "parent_dir,filename,fullpath,depth"
-
-
-# ---------------------------------------------------------------------------
-# format_csv: column values
-# ---------------------------------------------------------------------------
 
 
 class TestFormatCsvColumns:
@@ -143,11 +122,6 @@ class TestFormatCsvColumns:
         assert depth == 1
 
 
-# ---------------------------------------------------------------------------
-# format_csv: files_only option
-# ---------------------------------------------------------------------------
-
-
 class TestFormatCsvFilesOnly:
     def test_files_only_excludes_directory_rows(self, tmp_path: Path) -> None:
         root = _build_csv_tree(tmp_path)
@@ -169,11 +143,6 @@ class TestFormatCsvFilesOnly:
         assert "README.md" in filenames
         assert "guide.md" in filenames
         assert "app.py" in filenames
-
-
-# ---------------------------------------------------------------------------
-# ScanOptions.files_only
-# ---------------------------------------------------------------------------
 
 
 class TestScanFilesOnly:
@@ -200,11 +169,6 @@ class TestScanFilesOnly:
         root = _build_csv_tree(tmp_path)
         entries = scan(root, ScanOptions(dirs_only=True, files_only=False))
         assert all(e.is_dir for e in entries)
-
-
-# ---------------------------------------------------------------------------
-# CLI integration: --csv
-# ---------------------------------------------------------------------------
 
 
 class TestCsvCli:
@@ -265,11 +229,6 @@ class TestCsvCli:
         assert ".env" in output
 
 
-# ---------------------------------------------------------------------------
-# CLI integration: -F / --files-only (compat mode)
-# ---------------------------------------------------------------------------
-
-
 class TestFilesOnlyCli:
     def test_files_only_in_compat_mode_hides_dirs(self, sample_tree: Path) -> None:
         output = _csv_output(sample_tree, ["-F"])
@@ -291,11 +250,6 @@ class TestFilesOnlyCli:
     def test_dirs_only_and_files_only_is_error(self, sample_tree: Path) -> None:
         with pytest.raises(NtreeError, match="files-only"):
             _csv_output(sample_tree, ["-d", "-F"])
-
-
-# ---------------------------------------------------------------------------
-# CLI validation: option conflicts
-# ---------------------------------------------------------------------------
 
 
 class TestCsvOptionConflicts:
