@@ -18,6 +18,7 @@ class ShortOptions:
         budget: Approximate character budget for output aggregation.
         count: Whether to include per-group file counts.
         root_path: Root path used for relative path rendering.
+        order: Sort direction of files within each group, ``asc`` or ``desc``.
     """
 
     budget: int | None = None

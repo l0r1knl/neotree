@@ -44,6 +44,7 @@ class CompatOptions:
         full_path: Whether to print path from root for each entry.
         no_report: Whether to omit summary report line.
         root_path: Root path used for full path rendering.
+        order: Sort direction within each directory, ``asc`` or ``desc``.
     """
 
     charset: Literal["unicode", "ascii"] = "unicode"

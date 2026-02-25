@@ -30,10 +30,6 @@ from typing import Callable, Literal
 
 from neotree.scanner import Entry
 
-# ---------------------------------------------------------------------------
-# Column definition (extensibility core)
-# ---------------------------------------------------------------------------
-
 
 @dataclass(frozen=True, slots=True)
 class CsvColumn:
@@ -87,11 +83,6 @@ DEFAULT_COLUMNS: list[CsvColumn] = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Options
-# ---------------------------------------------------------------------------
-
-
 @dataclass(frozen=True, slots=True)
 class CsvOptions:
     """Options controlling CSV output.
@@ -104,17 +95,13 @@ class CsvOptions:
         columns: Column definitions to use. Defaults to ``DEFAULT_COLUMNS``.
             Pass a custom list to add or reorder columns (future use via
             ``--csv-columns``).
+        order: Sort direction within each parent group, ``asc`` or ``desc``.
     """
 
     root_path: Path | None = None
     files_only: bool = False
     columns: list[CsvColumn] = field(default_factory=lambda: list(DEFAULT_COLUMNS))
     order: Literal["asc", "desc"] = "asc"
-
-
-# ---------------------------------------------------------------------------
-# Formatter
-# ---------------------------------------------------------------------------
 
 
 def format_csv(
