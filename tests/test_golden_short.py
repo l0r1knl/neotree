@@ -35,6 +35,20 @@ def _assert_md_wrapped(output: str, mode: str) -> None:
     assert output.endswith("```")
 
 
+class TestShortGitignore:
+    """Golden and structural tests for --gitignore in short mode."""
+
+    def test_short_gitignore_golden(self, gitignore_tree: Path) -> None:
+        output = _run_cli_for_root(gitignore_tree, ["--short", "--gitignore"])
+        assert_golden(output, "short_gitignore")
+
+    def test_short_gitignore_excludes_matched(self, gitignore_tree: Path) -> None:
+        output = _run_cli_for_root(gitignore_tree, ["--short", "--gitignore"])
+        assert "node_modules" not in output
+        assert "app.pyc" not in output
+        assert "app.py" in output
+
+
 class TestShortGolden:
     @pytest.mark.parametrize(
         ("root_fixture_name", "cli_args", "golden_name"),

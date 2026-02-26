@@ -128,3 +128,67 @@ class TestRunNtree:
         """--budget with non-positive values must raise NtreeError."""
         with pytest.raises(NtreeError, match="--budget must be a positive integer"):
             run_ntree([str(tmp_path), "--short", "--budget", budget])
+
+
+def _build_gitignore_cli_tree(tmp_path: Path) -> Path:
+    """Create a tree with .gitignore for CLI-level tests."""
+    (tmp_path / ".gitignore").write_text("*.pyc\nnode_modules/\ndist/\n")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "app.py").write_text("app")
+    (tmp_path / "src" / "app.pyc").write_bytes(b"\x00")
+    (tmp_path / "node_modules" / "pkg").mkdir(parents=True)
+    (tmp_path / "node_modules" / "pkg" / "index.js").write_text("js")
+    (tmp_path / "dist").mkdir()
+    (tmp_path / "dist" / "bundle.js").write_text("bundle")
+    (tmp_path / "README.md").write_text("readme")
+    return tmp_path
+
+
+class TestGitignoreCli:
+    def test_gitignore_excludes_matching_entries(self, tmp_path: Path) -> None:
+        root = _build_gitignore_cli_tree(tmp_path)
+        output = run_ntree([str(root), "--gitignore", "-a"])
+        assert "node_modules" not in output
+        assert "app.pyc" not in output
+        assert "dist" not in output
+        assert "app.py" in output
+        assert "README.md" in output
+
+    def test_gitignore_with_short_mode(self, tmp_path: Path) -> None:
+        root = _build_gitignore_cli_tree(tmp_path)
+        output = run_ntree([str(root), "--gitignore", "--short", "-a"])
+        assert "node_modules" not in output
+        assert "app.pyc" not in output
+        assert "app.py" in output
+
+    def test_gitignore_with_csv_mode(self, tmp_path: Path) -> None:
+        root = _build_gitignore_cli_tree(tmp_path)
+        output = run_ntree([str(root), "--gitignore", "--csv", "-a"])
+        assert "node_modules" not in output
+        assert "app.pyc" not in output
+        assert "app.py" in output
+
+    def test_gitignore_with_exclude_pattern(self, tmp_path: Path) -> None:
+        root = _build_gitignore_cli_tree(tmp_path)
+        output = run_ntree([str(root), "--gitignore", "-I", "README.md", "-a"])
+        assert "README.md" not in output
+        assert "node_modules" not in output
+        assert "app.py" in output
+
+    def test_gitignore_with_preset(self, tmp_path: Path) -> None:
+        root = _build_gitignore_cli_tree(tmp_path)
+        output = run_ntree([str(root), "--gitignore", "--preset", "python", "-a"])
+        assert "node_modules" not in output
+        assert "app.py" in output
+
+    def test_gitignore_disabled_by_default(self, tmp_path: Path) -> None:
+        root = _build_gitignore_cli_tree(tmp_path)
+        output = run_ntree([str(root), "-a"])
+        assert "node_modules" in output
+        assert "app.pyc" in output
+
+    def test_gitignore_no_gitignore_file(self, tmp_path: Path) -> None:
+        root = _build_tree(tmp_path)
+        output = run_ntree([str(root), "--gitignore"])
+        assert "src/" in output
+        assert "README.md" in output

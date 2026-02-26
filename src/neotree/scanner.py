@@ -6,7 +6,10 @@ import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from pathspec import GitIgnoreSpec
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +43,14 @@ class ScanOptions:
         all_files: Whether to include hidden entries.
         files_only: Whether to include only files (directories are traversed
             but not added to results). Mutually exclusive with ``dirs_only``.
+        gitignore: Whether to apply root ``.gitignore`` rules.
     """
 
     max_depth: int | None = None
     dirs_only: bool = False
     all_files: bool = False
     files_only: bool = False
+    gitignore: bool = False
 
 
 class EntryFilter(Protocol):
@@ -86,6 +91,12 @@ def scan(
     if not root.is_dir():
         return []
 
+    gitignore_spec: GitIgnoreSpec | None = None
+    if scan_options.gitignore:
+        from neotree.gitignore import load_gitignore_spec
+
+        gitignore_spec = load_gitignore_spec(root)
+
     result: list[Entry] = []
 
     # Stack items: (directory_path, depth)
@@ -125,6 +136,13 @@ def scan(
 
             if active_filter.should_exclude(name, is_dir):
                 continue
+
+            if gitignore_spec is not None:
+                rel_path = Path(dir_entry.path).relative_to(root).as_posix()
+                if is_dir:
+                    rel_path += "/"
+                if gitignore_spec.match_file(rel_path):
+                    continue
 
             if scan_options.dirs_only and not is_dir:
                 continue

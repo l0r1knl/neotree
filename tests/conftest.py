@@ -72,6 +72,36 @@ def noisy_tree(tmp_path: Path) -> Path:
     return tmp_path
 
 
+@pytest.fixture
+def gitignore_tree(tmp_path: Path) -> Path:
+    """Tree with .gitignore for gitignore-integration testing.
+
+    Structure::
+
+        root/
+        ├── .gitignore          (*.pyc, node_modules/, dist/)
+        ├── dist/
+        │   └── bundle.js
+        ├── node_modules/
+        │   └── pkg/
+        │       └── index.js
+        ├── src/
+        │   ├── app.py
+        │   └── app.pyc
+        └── README.md
+    """
+    (tmp_path / ".gitignore").write_text("*.pyc\nnode_modules/\ndist/\n")
+    (tmp_path / "dist").mkdir()
+    (tmp_path / "dist" / "bundle.js").write_text("bundle")
+    (tmp_path / "node_modules" / "pkg").mkdir(parents=True)
+    (tmp_path / "node_modules" / "pkg" / "index.js").write_text("js")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "app.py").write_text("app")
+    (tmp_path / "src" / "app.pyc").write_bytes(b"\x00")
+    (tmp_path / "README.md").write_text("readme")
+    return tmp_path
+
+
 GOLDEN_DIR = Path(__file__).parent / "golden"
 
 

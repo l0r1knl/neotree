@@ -46,3 +46,17 @@ class TestCsvGolden:
         root = request.getfixturevalue(root_fixture_name)
         output = _csv_output(root, cli_args)
         assert_golden(output, golden_name)
+
+
+class TestCsvGitignore:
+    """Golden and structural tests for --gitignore in CSV mode."""
+
+    def test_csv_gitignore_golden(self, gitignore_tree: Path) -> None:
+        output = _csv_output(gitignore_tree, ["--csv", "--gitignore"])
+        assert_golden(output, "csv_gitignore")
+
+    def test_csv_gitignore_excludes_matched(self, gitignore_tree: Path) -> None:
+        output = _csv_output(gitignore_tree, ["--csv", "--gitignore"])
+        assert "node_modules" not in output
+        assert "app.pyc" not in output
+        assert "app.py" in output

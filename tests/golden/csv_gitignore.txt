@@ -1,0 +1,4 @@
+parent_dir,filename,fullpath,depth
+test_csv_gitignore_golden0,README.md,<ROOT>\README.md,0
+test_csv_gitignore_golden0,src,<ROOT>\src,0
+src,app.py,<ROOT>\src\app.py,1

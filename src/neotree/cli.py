@@ -143,6 +143,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="asc",
         help="Sort direction: asc (default) or desc",
     )
+    parser.add_argument(
+        "--gitignore",
+        action="store_true",
+        dest="gitignore",
+        help="Apply .gitignore rules to exclude matching entries",
+    )
     return parser
 
 
@@ -323,6 +329,7 @@ def _run_with_args(args: argparse.Namespace) -> str:
         dirs_only=args.dirs_only,
         all_files=args.all_files,
         files_only=args.files_only if not args.csv_mode else False,
+        gitignore=args.gitignore,
     )
 
     entries = scan(root, scan_opts, entry_filter)

@@ -198,3 +198,28 @@ class TestCompatOptionBehavior:
         """-f must still append '/' to directories."""
         output = run_ntree([str(sample_tree), "-f"])
         assert "src/" in output or "src\\" in output
+
+
+class TestCompatGitignore:
+    """Golden and structural tests for --gitignore in compat mode."""
+
+    def test_compat_gitignore_golden(self, gitignore_tree: Path) -> None:
+        output = run_ntree([str(gitignore_tree), "--gitignore"])
+        assert_golden(output, "compat_gitignore")
+
+    def test_compat_gitignore_dirsfirst_golden(self, gitignore_tree: Path) -> None:
+        output = run_ntree([str(gitignore_tree), "--gitignore", "--dirsfirst"])
+        assert_golden(output, "compat_gitignore_dirsfirst")
+
+    def test_gitignore_excludes_matched_entries(self, gitignore_tree: Path) -> None:
+        output = run_ntree([str(gitignore_tree), "--gitignore"])
+        assert "node_modules" not in output
+        assert "dist" not in output
+        assert "app.pyc" not in output
+        assert "app.py" in output
+        assert "README.md" in output
+
+    def test_gitignore_disabled_shows_all(self, gitignore_tree: Path) -> None:
+        output = run_ntree([str(gitignore_tree)])
+        assert "node_modules" in output
+        assert "dist" in output
