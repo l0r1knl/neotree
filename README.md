@@ -29,6 +29,8 @@ For contribution and naming rules, see `CONTRIBUTING.md`.
 ### Structure inspection
 
 - Tree-compatible directory listing with common filtering and depth controls
+- Hidden file visibility (`-a`), directory or file filtering (`-d`, `-F`)
+- Sort control (`--dirsfirst`, `--order desc`), ASCII fallback (`--charset ascii`)
 
 ### Grouped / compact output
 
@@ -42,7 +44,7 @@ For contribution and naming rules, see `CONTRIBUTING.md`.
 - Markdown wrapper for sharing (`--md`)
 - Write output to a file (`-o`)
 - Export directory structure as CSV with fixed schema (`--csv`)
-- Combine with `-F` to list files only (no directory rows)
+- List files only with `-F` (works with default tree output and `--csv`)
 
 ---
 
@@ -135,7 +137,7 @@ The budget is a rough character count heuristic, not an exact byte or token limi
 ## Markdown output
 
 `--md` wraps the output in a Markdown code block with a small metadata header.
-It can be combined with any mode.
+It can be combined with the default tree output or `--short`.
 
 ```bash
 ntree --short --md > STRUCTURE.md
@@ -212,7 +214,10 @@ api,user.py,C:\path\to\myproject\src\api\user.py,2
 - `--short` cannot be combined with `-d` or `-F`
 - `--csv` cannot be combined with `--short` or `--md`
 - `-d` and `-F` cannot be combined
+- `-F` works with default tree output and `--csv`
 - `-L` accepts integers ≥ 1 only
+- `--order` accepts `asc` (default) or `desc`
+- `--charset` accepts `unicode` (default) or `ascii`
 - `--preset` always includes `generic` exclusions (`.git`, `.DS_Store`, `Thumbs.db`) regardless of the named preset
 - `--preset` and `-I` can be combined; both sets of exclusions apply together
 
