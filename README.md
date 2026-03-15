@@ -31,6 +31,7 @@ For contribution and naming rules, see `CONTRIBUTING.md`.
 - Tree-compatible directory listing with common filtering and depth controls
 - Hidden file visibility (`-a`), directory or file filtering (`-d`, `-F`)
 - Sort control (`--dirsfirst`, `--order desc`), ASCII fallback (`--charset ascii`)
+- `.gitignore`-aware filtering (`--gitignore`)
 
 ### Grouped / compact output
 
@@ -50,8 +51,16 @@ For contribution and naming rules, see `CONTRIBUTING.md`.
 
 ## Installation
 
+Requires Python 3.10 or later.
+
 ```bash
 uv tool install .
+```
+
+or with pip:
+
+```bash
+pip install .
 ```
 
 ---
@@ -79,6 +88,18 @@ Example:
     └── test_user.py
 
 2 directories, 4 files
+```
+
+### Common options
+
+```bash
+ntree -a                   # include hidden files (dotfiles)
+ntree -f                   # show full relative path for each entry
+ntree -F                   # files only (omit directory entries)
+ntree --noreport           # omit the file/directory count summary
+ntree --charset ascii      # use ASCII tree-drawing characters
+ntree --order desc         # reverse sort order
+ntree --gitignore          # apply .gitignore rules
 ```
 
 ---
@@ -208,6 +229,20 @@ api,user.py,C:\path\to\myproject\src\api\user.py,2
 
 ---
 
+## Gitignore filtering
+
+`--gitignore` excludes entries that match patterns in the root `.gitignore` file.
+It reads from the `.gitignore` in the target directory only (nested `.gitignore` files are not followed).
+
+```bash
+ntree --gitignore
+ntree --short --gitignore --preset python
+```
+
+`--gitignore` can be combined with `--preset` and `-I`; all exclusion rules apply together.
+
+---
+
 ## Option notes
 
 - `--budget` and `--count` only work with `--short`
@@ -216,9 +251,11 @@ api,user.py,C:\path\to\myproject\src\api\user.py,2
 - `-d` and `-F` cannot be combined
 - `-F` works with default tree output and `--csv`
 - `-L` accepts integers ≥ 1 only
+- `--budget` must be a positive integer
 - `--order` accepts `asc` (default) or `desc`
 - `--charset` accepts `unicode` (default) or `ascii`
+- `--gitignore` reads only the root `.gitignore`; nested `.gitignore` files are not followed
+- `--gitignore`, `--preset`, and `-I` can all be combined; all exclusion rules apply together
 - `--preset` always includes `generic` exclusions (`.git`, `.DS_Store`, `Thumbs.db`) regardless of the named preset
-- `--preset` and `-I` can be combined; both sets of exclusions apply together
 
 ---
